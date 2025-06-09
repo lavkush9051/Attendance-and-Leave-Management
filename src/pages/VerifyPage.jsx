@@ -108,21 +108,40 @@ import React, { useRef, useState } from "react";
 import Webcam from "react-webcam";
 import axios from "axios";
 import './VerifyPage.css'
+import { AuthContext } from "../context/AuthContext";
+
 
 //import { Button } from "@material-tailwind/react";
 
 
 export default function VerifyPage() {
+  
   const webcamRef = useRef(null);
   const [matchData, setMatchData] = useState(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+
+    const getCurrentDateTime = () =>{
+    const now = new Date();
+    setCurrentDateTime({
+    hours : now.getHours(),
+    minutes : now.getMinutes(),
+    seconds : now.getSeconds()
+    });
+  };
 
   const captureAndVerify = async () => {
   const screenshot = webcamRef.current?.getScreenshot();
   if (!screenshot) return alert("Camera not ready!");
   try {
+    getCurrentDateTime();
     setLoading(true);
     const formData = new FormData();
     formData.append("file", dataURLtoFile(screenshot, "capture.jpg"));
@@ -138,6 +157,7 @@ export default function VerifyPage() {
         ? "✅ Match Found"
         : "❌ No Match Found"
     );
+    
   } catch (err) {
     console.error(err);
     setStatus("❌ Error contacting server");
@@ -152,85 +172,56 @@ export default function VerifyPage() {
     setStatus("");
   };
 
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-blue-200 flex items-center justify-center px-2">
-      <div className="bg-white shadow-xl rounded-xl w-full max-w-md mx-auto p-6 flex flex-col items-center space-y-6 transition-all duration-500 ease-in-out">
-        {/* Camera and buttons */}
-        <div className="flex flex-col items-center w-full space-y-3">
-          {showCamera ? (
-            <>
-              <Webcam
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                className="rounded-lg border border-gray-300 w-full max-w-xs h-48 object-cover transition duration-300 animate-fade-in"
-              />
-              <button
-                onClick={captureAndVerify}
-                className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition mt-2 w-full sm:w-auto"
-                style={{ minWidth: 130 }}
-              >
-                {loading ? "Verifying face..." : "🔍 Clock in"}
-              </button>
-              <button
-                onClick={stopCamera}
-                className="bg-red-500 text-white px-6 py-2 rounded shadow hover:bg-red-600 transition mt-2 w-full sm:w-auto"
-                style={{ minWidth: 130 }}
-              >
-                ❌ Stop Camera
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setShowCamera(true)}
-              className="btn-buttonCamera"
-              style={{ minWidth: 130 }}
-            >
-              📷 Start Camera
+    <div className="verify-container">
+      <div className="verify-card">
+        <h1 className="verify-heading">Click here for clockin</h1>
+        {/* <p className="verify-subtext">Use your face to sign in quickly and securely.</p> */}
+
+        {showCamera ? (
+          <>
+            <Webcam
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              className="webcam-preview"
+            />
+            <button className="login-button" onClick={captureAndVerify}>
+              {loading ? "Verifying..." : "📸 Capture"}
             </button>
-          )}
-        </div>
-
-        {/* Result */}
-        <div className="flex flex-col items-center w-full">
-          {status && (
-            <div
-              className={`text-lg font-semibold mb-2 transition-all duration-500 text-center w-full ${
-                matchData?.status === "success"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              {status}
+            <button className="cancel-button" onClick={stopCamera}>❌ Close Camera</button>
+          </>
+        ) : (
+          <>
+            <div className="camera-circle" onClick={() => setShowCamera(true)}>
+              <i className="fas fa-camera camera-icon"></i>
             </div>
-          )}
+            <button className="login-button" onClick={() => setShowCamera(true)}>Clockin</button>
+            <p className="verify-subtext">Click the circle or button above to verify your face image.</p>
+          </>
+        )}
 
-          {matchData?.status === "success" && (
-            <div className="mt-2 text-center bg-gray-100 p-4 rounded shadow w-full animate-fade-in">
-              <h2 className="text-xl font-semibold mb-2">Matched User</h2>
-              <p className="text-gray-700">
-                👤 Name: <span className="font-medium">{matchData.user}</span>
-              </p>
-              <p className="text-gray-700">
-                📏 Distance:{" "}
-                <span className="font-medium">
-                  {matchData.distance.toFixed(4)}
-                </span>
-              </p>
-            </div>
-          )}
+        {status && (
+          <div className={`verify-status ${matchData?.status === "success" ? "success" : "failed"}`}>
+            {status}
+          </div>
+        )}
 
-          {matchData?.status === "failed" && (
-            <div className="mt-2 text-center bg-yellow-100 p-4 rounded shadow w-full animate-fade-in">
-              <p className="text-gray-700">
-                Closest Match: <strong>{matchData.closest_match}</strong>
-              </p>
-              <p className="text-gray-700">
-                Distance:{" "}
-                <strong>{matchData.closest_distance.toFixed(4)}</strong>
-              </p>
-            </div>
-          )}
-        </div>
+        {matchData?.status === "success" && (
+          <div className="verify-details">
+            <p>👤 Name: <strong>{matchData.user}</strong></p>
+            <p>📏 Distance: <strong>{matchData.distance.toFixed(4)}</strong></p>
+            <p> Clockin Time : <strong>{currentDateTime.hours}:{currentDateTime.minutes}:{currentDateTime.seconds}</strong></p>
+          </div>
+        )}
+
+        {matchData?.status === "failed" && (
+          <div className="verify-details">
+            <p>Closest Match: <strong>{matchData.closest_match}</strong></p>
+            <p>Distance: <strong>{matchData.closest_distance.toFixed(4)}</strong></p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,34 +1,123 @@
-.buttonCamera {
-  position: relative;
-  background-color: #04AA6D;
-  border: none;
-  font-size: 28px;
-  color: #FFFFFF;
-  padding: 20px;
-  width: 200px;
+.verify-container {
+  min-height: 100vh;
+  background: #f4f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-image: url("../pages/../assets/jnpt-logo.png");
+  background-size: 100vh;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+.verify-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px 40px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
   text-align: center;
-  transition-duration: 0.4s;
-  text-decoration: none;
-  overflow: hidden;
+}
+
+.verify-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #003b5c;
+  margin-bottom: 10px;
+  font-family: sans-serif;
+}
+
+.verify-subtext {
+  color: #555;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
+.camera-circle {
+  background-color: #003b5c;
+  border: 5px solid #a7c9db;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  margin: 0 auto 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.camera-circle:hover {
+  transform: scale(1.05);
+}
+
+.camera-icon {
+  font-size: 32px;
+  color: white;
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #003b5c;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-family: sans-serif;
+}
+
+.login-button:hover {
+  background-color: #555;
+}
+
+.cancel-button {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.buttonCamera:after {
-  content: "";
-  background: #f1f1f1;
-  display: block;
-  position: absolute;
-  padding-top: 300%;
-  padding-left: 350%;
-  margin-left: -20px !important;
-  margin-top: -120%;
-  opacity: 0;
-  transition: all 0.8s
+.cancel-button:hover {
+  background: #d32f2f;
 }
 
-.buttonCamera:active:after {
-  padding: 0;
-  margin: 0;
-  opacity: 1;
-  transition: 0s
+.webcam-preview {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.verify-status {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.verify-status.success {
+  color: green;
+}
+
+.verify-status.failed {
+  color: red;
+}
+
+.verify-details {
+  margin-top: 10px;
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
 }

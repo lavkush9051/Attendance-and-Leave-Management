@@ -88,18 +88,69 @@
 // src/components/Navbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 import './Navbar.css'; // we will create this file for styling
+import logo from '../../assets/jnpt-logo.png';
+
+
 
 function Navbar() {
+  const { isAuthenticated, logout } = useContext(AuthContext);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
   return (
     <nav className="navbar">
-      <div className="logo">JNPT</div>
-      <ul>
-        <li><Link to="/">Dashboard</Link></li>
-        <li><Link to="/register">Register</Link></li>
-        <li><Link to="/verify">Verify</Link></li>
-        <li><Link to="/signup">Signup</Link></li>
-        <li><Link to="/login">Login</Link></li>
+      <div className="left-logo">
+        <img src={logo} alt="JNPT Logo" />
+        <span className="title">JNPT</span>
+      </div>
+
+      <button className="hamburger" onClick={toggleMenu}>
+        ☰
+      </button>
+
+      <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+        
+        {/* {isAuthenticated && (
+          <>
+          <li><Link to="/">Dashboard</Link></li>
+          <li><Link to="/register">Register</Link></li>
+          <li><Link to="/verify">Verify</Link></li>
+          </>
+        )}
+        
+        {isAuthenticated ? (
+          <li><Link to="/logout">Logout</Link></li>
+        ):(
+          <>
+          <li><Link to="/login">Login</Link></li>
+          <li><Link to="/signup">Signup</Link></li>
+          </>
+        )} */}
+
+        {isAuthenticated ? (
+          <>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/register">Register</Link></li>
+          <li><Link to="/verify">Verify</Link></li>
+          {/* <li><Link to="/logout">Logout</Link></li> */}
+          <button onClick={logout} className="logout-btn">Logout</button>
+          </>
+        ):(
+          <>
+          <li><Link to="/login">Login</Link></li>
+          <li><Link to="/signup">Signup</Link></li>
+          </>
+        )}
+        
       </ul>
     </nav>
   );

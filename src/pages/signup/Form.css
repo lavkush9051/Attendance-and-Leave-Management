@@ -5,18 +5,23 @@
   border: 1px solid #ccc;
   border-radius: 10px;
   background-color: #f9f9f9;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
 }
-.form-container h2 {
-  text-align: center;
+
+.form-container form {
+  width: 100%;
 }
+
 .form-container input {
   width: 100%;
   margin: 1rem 0;
   padding: 0.7rem;
   border-radius: 5px;
   border: 1px solid #ddd;
+  box-sizing: border-box;
 }
+
 .form-container button {
   width: 100%;
   padding: 0.7rem;
@@ -26,10 +31,43 @@
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-.error {
-  color: red;
-  font-size: 14px;
-  margin-bottom: 8px;
-  display: block;
+
+.form-container button:hover {
+  background-color: #002b40;
+}
+
+.register-text{
+  padding: 6px 8px;
+  margin: 5px 0px;
+  box-sizing: border-box;
+  border: 1px solid #003b5c;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.register-btns{
+  margin: 4px 4px 4px 4px;
+  outline: none;
+ cursor: pointer;
+ border: 1px solid black;
+ /* padding: 0.9rem 2rem; */
+ 
+ font-family: sans-serif;
+ font-size: inherit;
+ position: relative;
+ display: inline-block;
+ letter-spacing: 0.05rem;
+ font-weight: 550;
+ font-size: 13px;
+ border-radius: 4px;
+ overflow: hidden;
+ background: #ffffff;
+ color: #003b5c;
+
+}
+.register-btns:active{
+  background-color: #003a5c50;
+  transform: translateY(4px);
 }
