@@ -99,6 +99,8 @@ function Navbar() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const { isClockedIn, clockOut } = useContext(AuthContext);
+
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
@@ -106,6 +108,13 @@ function Navbar() {
   const closeMenu = () => {
     setMenuOpen(false);
   };
+
+  const handleClockOut = () => {
+    clockOut();
+    // Optionally, show message or redirect to dashboard
+  };
+
+
   return (
     <nav className="navbar">
       <div className="left-logo">
@@ -140,7 +149,14 @@ function Navbar() {
           <>
           <li><Link to="/dashboard">Dashboard</Link></li>
           <li><Link to="/register">Register</Link></li>
-          <li><Link to="/verify">Verify</Link></li>
+          {!isClockedIn ? (
+            <li><Link to="/verify">Clock In</Link></li>
+          ) : (
+            <button onClick={handleClockOut} className="nav-btn">
+              Clock Out
+            </button>
+          )}
+          {/* <li><Link to="/verify">Clockin</Link></li> */}
           {/* <li><Link to="/logout">Logout</Link></li> */}
           <button onClick={logout} className="logout-btn">Logout</button>
           </>

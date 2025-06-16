@@ -109,6 +109,8 @@ import Webcam from "react-webcam";
 import axios from "axios";
 import './VerifyPage.css'
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useContext } from "react";
 
 
 //import { Button } from "@material-tailwind/react";
@@ -126,14 +128,16 @@ export default function VerifyPage() {
     minutes: 0,
     seconds: 0,
   });
+  const { clockIn } = useContext(AuthContext);
 
+  
 
-    const getCurrentDateTime = () =>{
+  const getCurrentDateTime = () =>{
     const now = new Date();
     setCurrentDateTime({
-    hours : now.getHours(),
-    minutes : now.getMinutes(),
-    seconds : now.getSeconds()
+      hours : now.getHours(),
+      minutes : now.getMinutes(),
+      seconds : now.getSeconds()
     });
   };
 
@@ -143,8 +147,17 @@ export default function VerifyPage() {
   try {
     getCurrentDateTime();
     setLoading(true);
+    const username = localStorage.getItem("username");
+    if (!username) {
+      setStatus("❌ User not logged in");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", dataURLtoFile(screenshot, "capture.jpg"));
+    formData.append("username", username);
+
 
     const response = await axios.post(
       "http://127.0.0.1:8000/verify",
@@ -157,14 +170,17 @@ export default function VerifyPage() {
         ? "✅ Match Found"
         : "❌ No Match Found"
     );
+    if (response.data.status === "success") {
+      clockIn();
+    }
     
-  } catch (err) {
-    console.error(err);
-    setStatus("❌ Error contacting server");
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      console.error(err);
+      setStatus("❌ Error contacting server");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stopCamera = () => {
     setShowCamera(false);
@@ -172,6 +188,14 @@ export default function VerifyPage() {
     setStatus("");
   };
 
+  const navigate = useNavigate();
+  useEffect(() => {
+    if(matchData?.status === "success"){
+      setTimeout(() =>{
+        navigate("/dashboard");
+      }, 1000);
+    }
+  },[matchData, navigate]);
 
 
   return (

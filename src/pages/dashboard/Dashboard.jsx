@@ -22,9 +22,7 @@ const Dashboard = () => {
 
   return (
     <div>
-        <div>
-            <button className="">ClockIn</button>
-        </div>
+        
         <div className="dashboard-container">
             <FullCalendar
                 plugins={[dayGridPlugin]}

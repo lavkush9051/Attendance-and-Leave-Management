@@ -142,11 +142,19 @@ const Login = () => {
         username: form.username,
         password: form.password,
       });
+      
+      localStorage.setItem('username', form.username);
       login(response.data.token); // Save token in context & localStorage
       navigate('/dashboard');
     } catch (error) {
-      alert("Login failed: " + error.response.data.detail);
-    }
+        // If error.response exists, show backend message. Otherwise, generic error.
+        const message =
+          error.response?.data?.detail ||
+          error.response?.data?.msg ||
+          error.message ||
+          "Unknown error";
+        alert("Login failed: " + message);
+      }
   };
 
   return (

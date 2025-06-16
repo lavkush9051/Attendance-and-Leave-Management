@@ -40,6 +40,7 @@
   border-radius: 8px;
   transition: all 0.3s ease;
   font-family: sans-serif;
+  font-weight: 550;
 }
 
 .navbar ul li a:hover {
