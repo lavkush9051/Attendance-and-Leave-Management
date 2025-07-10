@@ -1,0 +1,71 @@
+.payroll-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.payroll-tabs {
+  display: flex;
+  border-bottom: 2px solid #ddd;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.payroll-tabs button {
+  padding: 10px 15px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-weight: 500;
+  font-size: 16px;
+  color: #555;
+  transition: 0.2s;
+}
+
+.payroll-tabs button.active, .payroll-tabs button:hover {
+  color: #3578e5;
+  border-bottom: 3px solid #3578e5;
+}
+
+.payroll-content {
+  padding: 10px 0;
+}
+
+.salary-filter {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.salary-filter select, 
+.salary-filter button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.salary-filter button {
+  background-color: #3578e5;
+  color: #fff;
+  cursor: pointer;
+}
+
+.declare-btn {
+  padding: 10px 16px;
+  background: #34d399;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.it-note {
+  color: #888;
+  font-size: 14px;
+  margin-top: 10px;
+}

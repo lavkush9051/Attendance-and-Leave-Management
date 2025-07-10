@@ -140,3 +140,9 @@
 .logout-btn:hover::before {
  transform: translate3d(100%, 0, 0);
 }
+
+.userprofile-icon{
+  height: 1.5em;
+    width: 2.5em;
+    color: white;
+}

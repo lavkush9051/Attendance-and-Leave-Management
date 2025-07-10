@@ -1,0 +1,130 @@
+.account-page {
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+  background: #f4f7fb;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  color: #003B5C;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #dbeafe;
+  padding-bottom: 10px;
+}
+
+.account-grid {
+  display: flex;
+  gap: 24px;
+  height: 600px; /* Fixed height to allow scrolling */
+  overflow: hidden;
+}
+
+/* LEFT PROFILE CARD */
+.profile-card.vertical {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  padding: 20px;
+  width: 260px;
+  flex-shrink: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.avatar-img {
+    width: 253px;
+    height: 244px;
+    border-radius: 30%;
+    margin-bottom: 52px;
+    border: 3px solid #0D8ABC;
+    -o-object-fit: cover;
+    object-fit: cover;
+}
+
+/* RIGHT CARDS CONTAINER */
+.right-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+  max-height: 100%;
+}
+
+/* COMMON CARD STYLE */
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.card h4 {
+  margin-bottom: 14px;
+  color: #0f172a;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+.info-item,
+.leave-item {
+  font-size: 0.95rem;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+/* SOCIAL CARD */
+.social-card {
+  margin-top: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.social-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.social-links a {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: white;
+}
+
+.linkedin {
+  background: #0a66c2;
+}
+.github {
+  background: #333;
+}
+.twitter {
+  background: #1da1f2;
+}
+
+@media (max-width: 768px) {
+  .account-grid {
+    flex-direction: column;
+  }
+
+  .right-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-card.vertical {
+    width: 100%;
+  }
+}
+

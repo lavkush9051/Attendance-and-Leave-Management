@@ -1,43 +1,122 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import dayjs from "dayjs";
 import './Dashboard.css';
+import VerifyModal from "../VerifyPage"; // New: modal for camera/card
+import { AuthContext } from '../../context/AuthContext';
+import RegularizeAttendanceModal from "../../components/RegularizeAttendanceModal/RegularizeAttendanceModal";
+
 
 const Dashboard = () => {
   const [presentDays, setPresentDays] = useState([]);
   const [holidays, setHolidays] = useState([]);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const { isClockedIn, clockOut } = useContext(AuthContext);
+
+  const handleClockOut = () => {
+    clockOut();
+    // Optionally, show message or redirect to dashboard
+  };
+
+  const [showRegularize, setShowRegularize] = useState(false);
+  const [regForm, setRegForm] = useState({
+    clockIn: "",
+    clockOut: "",
+    reason: ""
+  });
 
   useEffect(() => {
-    // Simulated present days data (you'll fetch this from your backend)
     setPresentDays([
       { date: "2025-06-02", clockIn: "09:15 AM", clockOut: "05:45 PM" },
       { date: "2025-06-03", clockIn: "09:10 AM", clockOut: "06:00 PM" },
       { date: "2025-06-04", clockIn: "09:10 AM", clockOut: "06:00 PM" },
       { date: "2025-06-05", clockIn: "09:10 AM", clockOut: "06:00 PM" },
     ]);
-    setHolidays(["2025-06-08", "2025-06-15"]); // Example holidays
+    setHolidays(["2025-06-08", "2025-06-15"]);
   }, []);
 
   return (
-    <div>
-        
-        <div className="dashboard-container">
-            <FullCalendar
-                plugins={[dayGridPlugin]}
-                initialView="dayGridMonth"
-                height="auto"
-                aspectRatio={1.5}
-                // events={holidayEvents}
-                dayCellContent={arg => renderDayCell(arg, presentDays)}
-                dayCellClassNames={arg => getDayCellClassNames(arg, presentDays, holidays)}
-            />
+    <div className="dashboard-container">
+      {/* Stats Card */}
+      <div className="dashboard-stats-card">
+        <div className="stats-group">
+          <div className="stats-header">Total</div>
+          <div className="stats-row">
+            <div>
+              <div className="stats-value-main">{presentDays.length}</div>
+              <div className="stats-label-sub">Present Days</div>
+            </div>
+            <div>
+              <div className="stats-value-main">{getAbsentDays(presentDays)}</div>
+              <div className="stats-label-sub">Absent Days</div>
+            </div>
+          </div>
         </div>
+        <div className="stats-group divider">
+          <div className="stats-header">Average</div>
+          <div className="stats-row">
+            <div>
+              <div className="stats-value-main">{getAverageWorkingHours(presentDays)}</div>
+              <div className="stats-label-sub">Working Hours</div>
+            </div>
+            <div>
+              <div className="stats-value-main">{getAverageLateBy(presentDays)}</div>
+              <div className="stats-label-sub">Late By</div>
+            </div>
+          </div>
+        </div>
+        <div className="stats-group divider">
+          <div className="stats-header">Shift</div>
+          <div className="stats-row">
+            <div>
+              <div className="stats-value-main">A (07:00 - 15:30)</div>
+              <div className="stats-label-sub">Current Shift</div>
+            </div>
+          </div>
+        </div>
+        {/* CLOCKIN/CLOCKOUT BUTTON */}
+        
+        <div className="stats-group divider clock-btn-group">
+          <button className="clock-btn" onClick={() => setShowRegularize(true)}>
+            Regularize
+          </button>
+          <RegularizeAttendanceModal
+            open={showRegularize}
+            onClose={() => setShowRegularize(false)}
+            user={{ name: "Lavkush" }} // Or use from AuthContext
+          />
+
+          {!isClockedIn ? (<button className="clock-btn" onClick={() => setShowVerifyModal(true)}>
+            Clock - In
+          </button>):(
+            <button className="clock-btn" onClick={handleClockOut}>
+              Clock - Out
+            </button>
+          )}
+        </div>
+        
+      </div>
+      
+
+      {/* Verify Modal */}
+      {showVerifyModal && (
+        <VerifyModal onClose={() => setShowVerifyModal(false)} />
+      )}
+
+      <FullCalendar
+        plugins={[dayGridPlugin]}
+        initialView="dayGridMonth"
+        height="auto"
+        aspectRatio={1.5}
+        dayCellContent={arg => renderDayCell(arg, presentDays)}
+        dayCellClassNames={arg => getDayCellClassNames(arg, presentDays, holidays)}
+      />
     </div>
   );
 };
 
+// --- helper functions (unchanged) ---
 function getDayCellClassNames(arg, presentDays, holidays) {
   const currentDate = dayjs(arg.date).format("YYYY-MM-DD");
   const today = dayjs().format("YYYY-MM-DD");
@@ -70,5 +149,46 @@ function renderDayCell(arg, presentDays) {
   );
 }
 
-export default Dashboard;
+function getAbsentDays(presentDays) {
+  const month = 5; // 0-based: 5=June
+  const year = 2025;
+  const presentSet = new Set(presentDays.map(d => d.date));
+  let totalWorkingDays = 0;
+  for (let day = 1; day <= 30; day++) {
+    const date = dayjs(`${year}-06-${String(day).padStart(2, "0")}`);
+    if (![0, 6].includes(date.day())) totalWorkingDays++;
+  }
+  return totalWorkingDays - presentSet.size;
+}
 
+function getAverageWorkingHours(presentDays) {
+  if (presentDays.length === 0) return "-";
+  let total = 0;
+  presentDays.forEach(d => {
+    const start = dayjs(`2025-01-01 ${d.clockIn}`, "YYYY-MM-DD hh:mm A");
+    const end = dayjs(`2025-01-01 ${d.clockOut}`, "YYYY-MM-DD hh:mm A");
+    total += end.diff(start, "minute");
+  });
+  const avg = total / presentDays.length;
+  const hours = Math.floor(avg / 60);
+  const minutes = Math.round(avg % 60);
+  return `${hours}h ${minutes}m`;
+}
+
+function getAverageLateBy(presentDays) {
+  if (presentDays.length === 0) return "-";
+  let total = 0;
+  const standardTime = dayjs("2025-01-01 09:00 AM", "YYYY-MM-DD hh:mm A");
+  presentDays.forEach(d => {
+    const inTime = dayjs(`2025-01-01 ${d.clockIn}`, "YYYY-MM-DD hh:mm A");
+    const late = Math.max(0, inTime.diff(standardTime, "minute"));
+    total += late;
+  });
+  const avg = total / presentDays.length;
+  if (avg < 1) return "On Time";
+  const hours = Math.floor(avg / 60);
+  const minutes = Math.round(avg % 60);
+  return `${hours}h ${minutes}m`;
+}
+
+export default Dashboard;

@@ -1,15 +1,15 @@
 .verify-container {
   min-height: 100vh;
-  background: #f4f7fa;
+  /* background: #f4f7fa; */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-image: url("../pages/../assets/jnpt-logo.png");
+  /* background-image: url("../pages/../assets/jnpt-logo.png");
   background-size: 100vh;
     background-position: center;
     background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat; */
 }
 
 .verify-card {

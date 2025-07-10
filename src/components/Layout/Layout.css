@@ -1,0 +1,29 @@
+/* .layout-container{
+  background-image: url("../../assets/jnpt-logo.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+} */
+
+/* Layout.css */
+.layout-container {
+  position: relative;
+  min-height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.layout-container::before {
+  content: "";
+  position: fixed; /* cover the whole screen */
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;    /* behind the content */
+  background-image: url("../../assets/jnpt-logo.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.1;   /* only the image is semi-transparent */
+  pointer-events: none; /* lets user click through */
+}

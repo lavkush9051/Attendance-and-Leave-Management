@@ -1,0 +1,171 @@
+.payroll-center-container {
+  max-width: 650px;
+  margin: 38px auto 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(80, 120, 180, 0.09);
+  padding: 28px 32px 32px 32px;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.payroll-center-container h2 {
+  margin-bottom: 20px;
+  color: #2362d1;
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.payroll-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+  border-bottom: 2px solid #eee;
+}
+
+.payroll-tabs button {
+  padding: 8px 28px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2362d1;
+  border-radius: 18px 18px 0 0;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.payroll-tabs button.active {
+  background: #2362d1;
+  color: #fff;
+  font-weight: 600;
+}
+
+.payroll-tab-content {
+  padding: 18px 10px 0 10px;
+}
+
+.salary-slip-section, .pf-section, .tax-section, .tax-declaration-section {
+  padding: 0 12px;
+}
+
+.salary-slip-filters {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.salary-slip-filters label {
+  font-weight: 500;
+  color: #283049;
+  font-size: 0.98rem;
+}
+
+.salary-slip-filters select {
+  margin-left: 4px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid #d1d8ec;
+}
+
+.download-btn {
+  background: #3578e5;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 14px;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+
+.download-btn:hover {
+  background: #2851a3;
+}
+
+.salary-slip-mock {
+  background: #f6f8fb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.salary-slip-mock div {
+  margin: 2px 0;
+}
+
+.pf-section .pf-details,
+.tax-section .tax-details {
+  background: #f6f8fb;
+  padding: 14px 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.view-passbook-btn {
+  margin-top: 10px;
+  background: #48bb78;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tax-declaration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 360px;
+  margin-top: 10px;
+}
+
+.tax-declaration-form label {
+  font-weight: 500;
+  color: #273649;
+  font-size: 1rem;
+}
+
+.tax-declaration-form input[type="number"],
+.tax-declaration-form input[type="text"] {
+  margin-top: 3px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid #d1d8ec;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.submit-declaration-btn {
+  background: #2362d1;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 0;
+  margin-top: 9px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+@media (max-width: 650px) {
+  .payroll-center-container {
+    padding: 11px 3vw 20px 3vw;
+    max-width: 99vw;
+  }
+  .salary-slip-section, .pf-section, .tax-section, .tax-declaration-section {
+    padding: 0 2px;
+  }
+  .salary-slip-filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+  }
+}

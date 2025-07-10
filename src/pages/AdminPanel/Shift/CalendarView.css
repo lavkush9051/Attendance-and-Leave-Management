@@ -1,0 +1,6 @@
+.fc .fc-daygrid-day-number {
+    padding: 4px;
+    position: relative;
+    z-index: 4;
+    color: black;
+}

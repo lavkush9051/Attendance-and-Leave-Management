@@ -1,0 +1,72 @@
+.admin-panel-container {
+  background: #f6f7fb;
+  min-height: 100vh;
+  padding: 30px;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+h2 {
+  color: #1a4f6d;
+  margin-bottom: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.admin-tabs {
+  margin-bottom: 32px;
+}
+
+.admin-tabs button {
+  background: #e8eefa;
+  color: #224099;
+  padding: 10px 22px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.admin-tabs button.active,
+.admin-tabs button:hover {
+  background: #1a4f6d;
+  color: #fff;
+}
+
+.requests-table, .shift-table {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 4px 18px rgba(44,62,80,.10);
+  margin-bottom: 36px;
+}
+
+.requests-table table, .shift-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.requests-table th, .requests-table td,
+.shift-table th, .shift-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #eef1f7;
+}
+
+.requests-table th, .shift-table th {
+  color: #1a4f6d;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #f6f7fb;
+}
+
+.pending { color: #FF9900; }
+.approve-btn { background: #00c48c; color: #fff; border: none; border-radius: 5px; padding: 5px 13px; margin-right: 7px; cursor: pointer; }
+.reject-btn { background: #f5222d; color: #fff; border: none; border-radius: 5px; padding: 5px 13px; margin-right: 7px; cursor: pointer; }
+.forward-btn { background: #1890ff; color: #fff; border: none; border-radius: 5px; padding: 5px 13px; cursor: pointer; }
+
+.approve-btn:hover { background: #01936d; }
+.reject-btn:hover { background: #c70000; }
+.forward-btn:hover { background: #135ba1; }
