@@ -3,7 +3,10 @@ import { admins } from "../mockEmployees";
 
 export default function BulkActions({ selectedCount, onBulkShift, onBulkManager, onExport }) {
   const [shift, setShift] = useState("");
-  const [mgr, setMgr] = useState("");
+  const weekOffList = [
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+  ];
+  const [selectedWeekOff, setSelectedWeekOff] = useState("");
 
   return (
     <div className="bulk-actions">
@@ -14,11 +17,21 @@ export default function BulkActions({ selectedCount, onBulkShift, onBulkManager,
         {["A","B","C"].map(s=> <option key={s} value={s}>Shift {s}</option>)}
       </select>
       <button onClick={()=>{ if(shift) onBulkShift(shift); setShift("") }} disabled={!shift}>Apply</button>
-      <select value={mgr} onChange={e=>setMgr(e.target.value)}>
-        <option value="">Bulk Manager →</option>
-        {admins.map(a=> <option key={a.id} value={a.name}>{a.name}</option>)}
-      </select>
-      <button onClick={()=>{ if(mgr) onBulkManager(mgr); setMgr("") }} disabled={!mgr}>Apply</button>
+      <select
+      value={selectedWeekOff}
+      onChange={e => setSelectedWeekOff(e.target.value)}
+    >
+      <option value="">Bulk WeekOff →</option>
+      {weekOffList.map(day => (
+        <option key={day} value={day}>{day}</option>
+      ))}
+    </select>
+    <button
+      onClick={() => {
+        if (selectedWeekOff) onBulkWeekOff(selectedWeekOff);
+      }}
+      disabled={!selectedWeekOff || !selectedCount}
+    >Apply</button>
     </div>
   );
 }

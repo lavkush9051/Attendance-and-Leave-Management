@@ -10,15 +10,30 @@ export function AuthProvider({ children }) {
   const [isClockedIn, setIsClockedIn] = useState(() => {
     return localStorage.getItem("isClockedIn") === "true";
   });
+  const [attendanceLog, setAttendanceLog] = useState([]);
 
   const clockIn = () => {
     setIsClockedIn(true);
     localStorage.setItem("isClockedIn", "true");
+     setAttendanceLog(prev => [
+      ...prev,
+      {
+        type: "IN",
+        timestamp: new Date().toISOString()
+      }
+    ]);
   };
 
   const clockOut = () => {
     setIsClockedIn(false);
     localStorage.setItem("isClockedIn", "false");
+    setAttendanceLog(prev => [
+      ...prev,
+      {
+        type: "OUT",
+        timestamp: new Date().toISOString()
+      }
+    ]);
   };
 
   useEffect(() => {
@@ -39,7 +54,16 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, isClockedIn, clockIn, clockOut}}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      login, 
+      logout, 
+      isClockedIn, 
+      clockIn, 
+      clockOut, 
+      attendanceLog, 
+      setAttendanceLog
+    }}>
       {children}
     </AuthContext.Provider>
   );

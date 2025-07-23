@@ -1,27 +1,87 @@
-const weekDays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+// mockData.js
 
-export const employees = Array.from({length:50}, (_,i)=>{
-  // Assign two different week off days for each employee, change logic as you wish!
-  const firstDay = weekDays[i % 7];
-  const secondDay = weekDays[(i*2+3) % 7]; // Ensures not same as firstDay (for variety)
-  return {
-    id: i+1,
-    name: `Employee ${i+1}`,
-    dept: ["IT","HR","Finance","Ops"][i%4],
-    manager: ["Alice","Bob","Carol"][i%3],
-    shift: ["A","B","C"][i%3],
-    status: i%5===0?"Inactive":"Active",
-    role: ["Employee","Manager"][i%2],
-    weekOff: [firstDay, secondDay]
+// Weekoff types for shifts
+// const shifts = ['I', 'II', 'III'];
+// const weekOffs = {
+//   I: ['Saturday', 'Wednesday'],
+//   II: ['Friday', 'Monday'],
+//   III: ['Thursday', 'Sunday']
+// };
+
+// let employees = [];
+// let empId = 1;
+
+// shifts.forEach(shift => {
+//   weekOffs[shift].forEach(day => {
+//     for (let i = 0; i < 7; i++) {
+//       employees.push({
+//         id: empId,
+//         name: `Employee ${empId}`,
+//         dept: "Traffic",
+//         manager: ["Alice", "Bob", "Carol"][empId % 3],
+//         shift: shift,
+//         startShift: shift,
+//         weekOff: day,
+//         status: "Active",
+//         role: "Employee"
+//       });
+//       empId++;
+//     }
+//   });
+// });
+
+// Generate 42 shift employees (14 per shift, 7 per week-off group)
+// Generate 42 shift employees + 7 general employees
+// Generate 42 shift employees (14 per shift, 7 per week-off group)
+export const generateEmployees = () => {
+  const shifts = ['I', 'II', 'III'];
+  const initialWeekOffs = {
+    'I': ['SAT', 'WED'],
+    'II': ['FRI', 'MON'],
+    'III': ['THU', 'SUN']
+  };
+
+  let employees = [];
+  let empId = 1;
+
+  // Create 42 shift employees (14 per shift: 7 per week-off group)
+  shifts.forEach(shift => {
+    initialWeekOffs[shift].forEach(day => {
+      for (let i = 0; i < 7; i++) {
+        employees.push({
+          id: empId,
+          name: `Employee ${empId}`,
+          dept: "Traffic",
+          manager: ["Alice", "Bob", "Carol"][empId % 3],
+          shift: shift,
+          initialWeekOff: day,
+          status: "Active",
+          role: "Employee"
+        });
+        empId++;
+      }
+    });
+  });
+
+  // Create 7 general employees (always on leave)
+  for (let i = 0; i < 7; i++) {
+    employees.push({
+      id: empId,
+      name: `General Emp ${i+1}`,
+      dept: ["IT", "HR", "Finance", "Ops"][i % 4],
+      manager: ["Alice", "Bob", "Carol"][empId % 3],
+      shift: "General",
+      initialWeekOff: "ALWAYS",
+      status: "Active",
+      role: "General"
+    });
+    empId++;
   }
-});
 
+  return employees;
+};
+export const employees = generateEmployees();
 
-export const swapRequests = [
-  { id:1, from:"Employee 3", to:"Employee 8", date:"2025-07-05", status:"Pending" },
-  { id:2, from:"Employee 12", to:"Employee 29", date:"2025-07-07", status:"Pending" },
-];
-
-export const auditEvents = [
-  { id:1, msg:"Initial data load", time: new Date() },
-];
+// Placeholder data
+export const swapRequests = [];
+export const auditEvents = [];

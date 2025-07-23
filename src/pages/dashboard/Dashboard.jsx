@@ -7,12 +7,19 @@ import VerifyModal from "../VerifyPage"; // New: modal for camera/card
 import { AuthContext } from '../../context/AuthContext';
 import RegularizeAttendanceModal from "../../components/RegularizeAttendanceModal/RegularizeAttendanceModal";
 
+function formatTime(iso) {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 
 const Dashboard = () => {
   const [presentDays, setPresentDays] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const { isClockedIn, clockOut } = useContext(AuthContext);
+  const { attendanceLog } = useContext(AuthContext);
 
   const handleClockOut = () => {
     clockOut();
@@ -35,6 +42,28 @@ const Dashboard = () => {
     ]);
     setHolidays(["2025-06-08", "2025-06-15"]);
   }, []);
+
+  useEffect(() => {
+  // Group log by date, pick first IN and last OUT for each date
+    const byDate = {};
+    attendanceLog.forEach(entry => {
+      const date = entry.timestamp.slice(0, 10); // "YYYY-MM-DD"
+      if (!byDate[date]) byDate[date] = { clockIns: [], clockOuts: [] };
+      if (entry.type === "IN") byDate[date].clockIns.push(entry.timestamp);
+      if (entry.type === "OUT") byDate[date].clockOuts.push(entry.timestamp);
+    });
+
+    const present = Object.keys(byDate).map(date => {
+      const inTimes = byDate[date].clockIns.sort();
+      const outTimes = byDate[date].clockOuts.sort();
+      return {
+        date,
+        clockIn: inTimes.length ? formatTime(inTimes[0]) : "-",
+        clockOut: outTimes.length ? formatTime(outTimes[outTimes.length - 1]) : "-"
+      };
+    });
+    setPresentDays(present);
+  }, [attendanceLog]);
 
   return (
     <div className="dashboard-container">
