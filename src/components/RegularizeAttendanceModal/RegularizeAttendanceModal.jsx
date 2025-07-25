@@ -1,39 +1,59 @@
 import React, { useState } from "react";
-import { useAttendanceRequests } from "../../context/AttendanceRequestsContext";
 import "./RegularizeAttendanceModal.css";
 
-const todayStr = new Date().toISOString().slice(0,10);
+const todayStr = new Date().toISOString().slice(0, 10);
 
-export default function RegularizeAttendanceModal({ open, onClose, user }) {
+export default function RegularizeAttendanceModal({ open, onClose }) {
   const [form, setForm] = useState({
     date: todayStr,
     clockIn: "",
     clockOut: "",
     reason: "",
   });
-  const { setAttendanceRequests } = useAttendanceRequests();
+  const [submitting, setSubmitting] = useState(false);
 
   if (!open) return null;
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setAttendanceRequests(prev => [
-      ...prev,
-      {
-        id: Date.now(),
-        name: user?.name || "Current User",
-        date: form.date,
-        clockIn: form.clockIn,
-        clockOut: form.clockOut,
-        reason: form.reason,
-        status: "Pending"
+    setSubmitting(true);
+
+    // Get emp_id from localStorage (as saved after login)
+    const employee = JSON.parse(localStorage.getItem("employee"));
+    const emp_id = employee?.emp_id;
+    if (!emp_id) {
+      alert("Employee ID missing. Please re-login.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/attendance-regularization", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emp_id,
+          date: form.date,
+          clock_in: form.clockIn,
+          clock_out: form.clockOut,
+          reason: form.reason,
+        }),
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        onClose();
+      } else {
+        alert("Failed to submit attendance regularization.");
       }
-    ]);
-    onClose();
+    } catch (err) {
+      alert("Error: " + err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -81,8 +101,10 @@ export default function RegularizeAttendanceModal({ open, onClose, user }) {
             />
           </label>
           <div className="modal-actions">
-            <button type="button" className="modal-cancel-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="modal-submit-btn">Submit</button>
+            <button type="button" className="modal-cancel-btn" onClick={onClose} disabled={submitting}>Cancel</button>
+            <button type="submit" className="modal-submit-btn" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
           </div>
         </form>
       </div>

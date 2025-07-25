@@ -144,7 +144,9 @@ const Login = () => {
       });
       
       localStorage.setItem('username', form.username);
-      login(response.data.token); // Save token in context & localStorage
+      //localStorage.setItem('token', response.data.token);
+      //localStorage.setItem('employee', JSON.stringify(response.data.employee));
+      login(response.data.token, response.data.employee); // Save token in context & localStorage
       navigate('/dashboard');
     } catch (error) {
         // If error.response exists, show backend message. Otherwise, generic error.

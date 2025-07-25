@@ -87,7 +87,7 @@
 // };
 
 // export default ShiftTable;
-
+// ShiftTable.jsx
 import React from "react";
 
 export default function ShiftTable({ data, selectedIds, onSelect, onSelectAll }) {
@@ -124,12 +124,12 @@ export default function ShiftTable({ data, selectedIds, onSelect, onSelectAll })
                 onChange={e => onSelect(idx, e.target.checked)}
               />
             </td>
-            <td>{row["Emp Id"]}</td> 
-            <td>{row["Emp Name"]}</td>
-            <td>{row["Emp Designation"]}</td>
-            <td>{row["Emp Dept"]}</td>
+            <td>{row["emp_id"]}</td> 
+            <td>{row["emp_name"]}</td>
+            <td>{row["emp_designation"]}</td>
+            <td>{row["emp_department"]}</td>
             <td>{row["Shift"]}</td>
-            <td>{row["Weekoff"]}</td>
+            <td>{row["emp_weekoff"]}</td>
             <td>{row["Date"]}</td>
           </tr>
         ))}

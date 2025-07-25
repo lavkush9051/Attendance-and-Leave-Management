@@ -1,37 +1,23 @@
-import React, { useState } from "react";
-import { FaUserCircle, FaArrowDown } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaUserCircle } from "react-icons/fa";
 import "./ReportingLevel.css";
 
-// Replace with your actual data fetching logic
-const employee = {
-  name: "Aditi Gupta",
-  role: "Employee",
-  email: "aditi@company.com",
-  mobile: "9876543210",
-  avatarColor: "#4F8CFD"
-};
-const L1 = {
-  name: "Rakesh Kumar",
-  role: "L1 Manager",
-  email: "rakesh.k@company.com",
-  mobile: "9555000111",
-  department: "IT",
-  avatarColor: "#FFA548"
-};
-const L2 = {
-  name: "Swati Verma",
-  role: "L2 Manager",
-  email: "swati.verma@company.com",
-  mobile: "9888800445",
-  department: "HR",
-  avatarColor: "#53D18A"
-};
-
-const levels = [employee, L1, L2];
-
 export default function ReportingLevel() {
-  // Track which card is hovered for modal
+  const [levels, setLevels] = useState(null);
   const [modalUser, setModalUser] = useState(null);
+
+  useEffect(() => {
+    // Fetch emp_id, emp_l1, emp_l2 from localStorage after login
+    const employee = JSON.parse(localStorage.getItem("employee"));
+    if (!employee) return;
+    const { emp_id, emp_l1, emp_l2 } = employee;
+    fetch(`http://127.0.0.1:8000/api/reporting-levels?emp_id=${emp_id}&l1_id=${emp_l1}&l2_id=${emp_l2}`)
+      .then(res => res.json())
+      .then(data => setLevels([data.employee, data.l1, data.l2]));
+  }, []);
+
+  if (!levels) return <div>Loading reporting levels...</div>;
+
   return (
     <div className="reporting-container">
       <h2 className="reporting-title">Reporting Hierarchy</h2>
@@ -40,7 +26,7 @@ export default function ReportingLevel() {
           <React.Fragment key={user.name}>
             <UserCard
               user={user}
-              showModal={idx > 0} // Only L1, L2, etc (not employee)
+              showModal={idx > 0}
               onHover={() => setModalUser(idx)}
               onLeave={() => setModalUser(null)}
               showDetails={modalUser === idx}
@@ -66,12 +52,9 @@ function UserCard({ user, showModal, onHover, onLeave, showDetails }) {
       </div>
       <div>
         <div className="user-name">{user.name}</div>
-        <div className="user-role">{user.role}</div>
+        <div className="user-role">{user.designation}</div>
       </div>
-      {/* Modal shown on hover */}
-      {showDetails && (
-        <ManagerDetailsModal user={user} />
-      )}
+      {showDetails && <ManagerDetailsModal user={user} />}
     </div>
   );
 }
@@ -84,7 +67,7 @@ function ManagerDetailsModal({ user }) {
       </div>
       <div className="modal-content-box">
         <div className="modal-title">{user.name}</div>
-        <div className="modal-role">{user.role}</div>
+        <div className="modal-role">{user.designation}</div>
         {user.department && (
           <div className="modal-detail"><strong>Department:</strong> {user.department}</div>
         )}
@@ -98,7 +81,6 @@ function ManagerDetailsModal({ user }) {
 function AnimatedArrow() {
   return (
     <div className="arrow-container">
-      {/* <FaArrowDown className="animated-arrow" size={36} /> */}
       <span className="simple-down-arrow">↓</span>
     </div>
   );

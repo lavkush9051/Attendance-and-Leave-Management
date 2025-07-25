@@ -12,6 +12,11 @@ export function AuthProvider({ children }) {
   });
   const [attendanceLog, setAttendanceLog] = useState([]);
 
+  const [employee, setEmployee] = useState(() => {
+    const stored = localStorage.getItem("employee");
+    return stored ? JSON.parse(stored) : null;
+  });
+
   const clockIn = () => {
     setIsClockedIn(true);
     localStorage.setItem("isClockedIn", "true");
@@ -38,18 +43,39 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     setIsAuthenticated(!!localStorage.getItem('token'));
+    const emp = localStorage.getItem("employee");
+    if (emp) setEmployee(JSON.parse(emp));
   }, []);
 
-  const login = (token) => {
+  const login = async (token, emp) => {
     localStorage.setItem('token', token);
-//    localStorage.setItem('username', form.username);
     setIsAuthenticated(true);
+    setEmployee(emp);
+    localStorage.setItem('employee', JSON.stringify(emp));
+
+    // Fetch employee info right after login
+    // try {
+    //   const res = await fetch(`http://127.0.0.1:8000/api/employee/${emp_id}`, {
+    //     headers: { Authorization: `Bearer ${token}` }
+    //   });
+    //   if (res.ok) {
+    //     const emp = await res.json();
+    //     setEmployee(emp);
+    //     localStorage.setItem("employee", JSON.stringify(emp));
+    //   } else {
+    //     setEmployee(null);
+    //   }
+    // } catch (err) {
+    //   setEmployee(null);
+    // }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username')
+    localStorage.removeItem('employee');
+    localStorage.removeItem('username');
     setIsAuthenticated(false);
+    setEmployee(null);
     navigate('/login');
   };
 
@@ -62,7 +88,9 @@ export function AuthProvider({ children }) {
       clockIn, 
       clockOut, 
       attendanceLog, 
-      setAttendanceLog
+      setAttendanceLog,
+      employee,
+      setEmployee
     }}>
       {children}
     </AuthContext.Provider>

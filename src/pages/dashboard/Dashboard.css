@@ -19,6 +19,9 @@
   min-height: 100px;
   transition: background 0.3s;
 }
+.fc-day-number {
+  color: #dde4e7
+}
 
 .day-cell-content {
   display: flex;

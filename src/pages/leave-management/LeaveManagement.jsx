@@ -3,36 +3,11 @@ import LeaveDashboard from "./LeaveDashboard";
 import LeaveDetails from "./LeaveDetails";
 import LeaveRequestForm from "./LeaveRequestForm";
 import "./LeaveManagement.css";
-import {useLeaveRequests } from "../../context/LeaveRequestsContext";
+
 
 const LeaveManagement = () => {
   const [showForm, setShowForm] = useState(false);
-  const {leaveRequests, setLeaveRequests} = useLeaveRequests();
-  //   [
-  //   {
-  //     empId: "EMP001",
-  //     name: "Sandeep pal",
-  //     department: "IT",
-  //     leaveType: "Privilege Leave",
-  //     fromDate: "2025-06-10",
-  //     toDate: "2025-06-12",
-  //     reason: "Family function",
-  //     status: "Approved"
-  //   },
-  //   {
-  //     empId: "EMP999",
-  //     name: "Anita Sharma",
-  //     department: "Finance",
-  //     leaveType: "Sick Leave",
-  //     fromDate: "2025-06-18",
-  //     toDate: "2025-06-20",
-  //     reason: "Medical leave not supported with documents",
-  //     status: "Rejected"
-  //   }
-
-  //   // More sample data...
-  // ]);
-
+  
   const [leaveBalances] = useState([
     { type: "Privilege Leave", total: 12, taken: 3, remaining: 9 },
     { type: "Casual Leave", total: 8, taken: 2, remaining: 6 },
@@ -41,11 +16,11 @@ const LeaveManagement = () => {
   ]);
 
   const handleSubmit = (newRequest) => {
-    setLeaveRequests([...leaveRequests, {
-      ...newRequest,
-      status: "Pending",
-      empId: `EMP${Math.floor(1000 + Math.random() * 9000)}`
-    }]);
+    // setLeaveRequests([...leaveRequests, {
+    //   ...newRequest,
+    //   status: "Pending",
+    //   empId: `EMP${Math.floor(1000 + Math.random() * 9000)}`
+    // }]);
     setShowForm(false);
   };
 
@@ -62,10 +37,7 @@ const LeaveManagement = () => {
           </button>
         </div>
       </div>
-      <LeaveDashboard
-        leaveRequests={leaveRequests}
-        setLeaveRequests={setLeaveRequests}
-      />
+      <LeaveDashboard/>
 
       <LeaveDetails leaveBalances={leaveBalances} />
       {showForm && (

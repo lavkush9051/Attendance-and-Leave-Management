@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from '../../context/AuthContext';
 import "./LeaveRequestForms.css";
 
 const LeaveRequestForm = ({ onSubmit, onCancel }) => {
+  const { employee } = useContext(AuthContext);
   const [formData, setFormData] = useState({
-    empId: "",
-    name: "",
-    department: "",
     leaveType: "Privilege Leave",
     fromDate: "",
     toDate: "",
@@ -16,41 +15,55 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
   const [showCustomReason, setShowCustomReason] = useState(false);
   const [evidenceFile, setEvidenceFile] = useState(null);
   const [fileError, setFileError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if evidence is mandatory and not uploaded
     if (formData.leaveType === "Medical Leave" && !evidenceFile) {
       setFileError("Evidence is required for Medical Leave.");
       return;
     }
 
+    setSubmitting(true);
+
     const finalReason = showCustomReason ? formData.customReason : formData.reason;
 
-    onSubmit({
-      ...formData,
-      empId: `EMP${Math.floor(1000 + Math.random() * 9000)}`,
-      reason: finalReason,
-      status: "Pending",
-      evidence: evidenceFile ? evidenceFile.name : null
-    });
+    // Prepare FormData for file upload (multi-part)
+    const data = new FormData();
+    console.log(employee.emp_id);
+    data.append("emp_id", employee.emp_id);
+    data.append("leave_type", formData.leaveType);
+    data.append("leave_from_dt", formData.fromDate);
+    data.append("leave_to_dt", formData.toDate);
+    data.append("leave_reason", finalReason);
+    if (evidenceFile) data.append("evidence", evidenceFile);
 
-    // Reset form after submit
-    setEvidenceFile(null);
-    setFileError("");
+    // Send POST to backend
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/leave-request", {
+        method: "POST",
+        body: data
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        if (onSubmit) onSubmit(result); // callback if needed
+        onCancel(); // close form
+      } else {
+        alert("Failed to submit leave request.");
+      }
+    } catch (error) {
+      alert("Failed to submit: " + error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "reason") {
-      setShowCustomReason(value === "Others");
-    }
-
-    if (name === "leaveType" && value !== "Medical Leave") {
-      setFileError(""); // clear error if changed from medical
-    }
+    if (name === "reason") setShowCustomReason(value === "Others");
+    if (name === "leaveType" && value !== "Medical Leave") setFileError("");
 
     setFormData({ ...formData, [name]: value });
   };
@@ -80,45 +93,8 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
   return (
     <div className="leave-request-container">
       <h2 className="form-title">Apply for Leave</h2>
-
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
-          <div className="form-group">
-            <label>Employee ID</label>
-            <input
-              type="text"
-              name="empId"
-              value={formData.empId}
-              onChange={handleChange}
-              placeholder="EMP001"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Department</label>
-            <input
-              type="text"
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              placeholder="IT"
-              required
-            />
-          </div>
-
           <div className="form-group">
             <label>Leave Type</label>
             <select
@@ -135,7 +111,6 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
               <option value="Paternity Leave">Paternity Leave</option>
             </select>
           </div>
-
           <div className="form-group">
             <label>From Date</label>
             <input
@@ -146,7 +121,6 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
-
           <div className="form-group">
             <label>To Date</label>
             <input
@@ -157,8 +131,6 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
-
-          {/* Reason */}
           <div className="form-group full-width">
             <label>Reason</label>
             <select
@@ -178,7 +150,6 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
               ))}
             </select>
           </div>
-
           {showCustomReason && (
             <div className="form-group full-width">
               <label>Please specify the reason</label>
@@ -193,8 +164,6 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
             </div>
           )}
         </div>
-
-        {/* Upload Evidence */}
         <div className="form-group full-width">
           <label>
             Upload Evidence{" "}
@@ -211,15 +180,12 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
             <p style={{ color: "red", fontSize: "0.9rem", marginTop: "5px" }}>{fileError}</p>
           )}
         </div>
-
-        {/* Buttons */}
         <div className="form-actions">
-          <button type="button" onClick={onCancel} className="cancel-btn">
+          <button type="button" onClick={onCancel} className="cancel-btn" disabled={submitting}>
             Cancel
           </button>
-
-          <button type="submit" className="submit-btn">
-            Submit Application
+          <button type="submit" className="submit-btn" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit Application"}
           </button>
         </div>
       </form>
