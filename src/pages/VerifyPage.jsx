@@ -4,6 +4,7 @@ import axios from "axios";
 import './VerifyPage.css';
 import { AuthContext } from "../context/AuthContext";
 
+
 function dataURLtoFile(dataurl, filename) {
   let arr = dataurl.split(',');
   let mime = arr[0].match(/:(.*?);/)[1];
@@ -24,6 +25,9 @@ export default function VerifyPage({ onClose }) {
   const [showCamera, setShowCamera] = useState(true);
   const [currentDateTime, setCurrentDateTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const { clockIn } = useContext(AuthContext);
+ // const employee = AuthContext.employee;
+  const { employee } = useContext(AuthContext);
+  console.log("Employee ID:", employee);
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -49,7 +53,7 @@ export default function VerifyPage({ onClose }) {
 
       const formData = new FormData();
       formData.append("file", dataURLtoFile(screenshot, "capture.jpg"));
-      formData.append("username", username);
+      formData.append("face_user_emp_id", employee.emp_id);
 
       const response = await axios.post(
         "http://127.0.0.1:8000/verify",
@@ -57,6 +61,7 @@ export default function VerifyPage({ onClose }) {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       setMatchData(response.data);
+      console.log(response.data);
       setStatus(
         response.data.status === "success"
           ? "✅ Match Found"
@@ -109,20 +114,30 @@ export default function VerifyPage({ onClose }) {
           </div>
         )}
 
-        {matchData?.status === "success" && (
-          <div className="verify-details">
-            <p>👤 Name: <strong>{matchData.user}</strong></p>
-            <p>📏 Distance: <strong>{matchData.distance.toFixed(4)}</strong></p>
-            <p> Clockin Time : <strong>{currentDateTime.hours}:{currentDateTime.minutes}:{currentDateTime.seconds}</strong></p>
-          </div>
-        )}
+{matchData?.status === "success" && (
+  <div className="verify-details">
+    <p>👤 Name: <strong>{matchData.user}</strong></p>
+    <p>
+      📏 Distance: <strong>
+        {typeof matchData.distance === "number"
+          ? matchData.distance.toFixed(4)
+          : "-"}
+      </strong></p>
+    <p> Clockin Time : <strong>{currentDateTime.hours}:{currentDateTime.minutes}:{currentDateTime.seconds}</strong></p>
+  </div>
+)}
 
-        {matchData?.status === "failed" && (
-          <div className="verify-details">
-            <p>Closest Match: <strong>{matchData.closest_match}</strong></p>
-            <p>Distance: <strong>{matchData.closest_distance.toFixed(4)}</strong></p>
-          </div>
-        )}
+{matchData?.status === "failed" && (
+  <div className="verify-details">
+    <p>Closest Match: <strong>{matchData.closest_match}</strong></p>
+    <p>Distance: <strong>
+      {typeof matchData.closest_distance === "number"
+        ? matchData.closest_distance.toFixed(4)
+        : "-"}
+    </strong></p>
+  </div>
+)}
+
       </div>
     </div>
   );

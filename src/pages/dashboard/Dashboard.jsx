@@ -1,73 +1,124 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import dayjs from "dayjs";
-import './Dashboard.css';
-import VerifyModal from "../VerifyPage"; // New: modal for camera/card
+import "./Dashboard.css";
+import VerifyPage from "../VerifyPage";
 import { AuthContext } from '../../context/AuthContext';
 import RegularizeAttendanceModal from "../../components/RegularizeAttendanceModal/RegularizeAttendanceModal";
 
-function formatTime(iso) {
-  if (!iso) return "-";
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-
-const Dashboard = () => {
+export default function Dashboard() {
   const [presentDays, setPresentDays] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
-  const { isClockedIn, clockOut } = useContext(AuthContext);
-  const { attendanceLog } = useContext(AuthContext);
-
-  const handleClockOut = () => {
-    clockOut();
-    // Optionally, show message or redirect to dashboard
-  };
-
   const [showRegularize, setShowRegularize] = useState(false);
-  const [regForm, setRegForm] = useState({
-    clockIn: "",
-    clockOut: "",
-    reason: ""
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    shift: "-",
+    averageWorking: "-",
+    averageLate: "-",
+    absent: "-"
   });
+  const { isClockedIn, clockOut } = useContext(AuthContext);
+  const lastFetchedMonth = useRef();
 
-  useEffect(() => {
-    setPresentDays([
-      { date: "2025-06-02", clockIn: "09:15 AM", clockOut: "05:45 PM" },
-      { date: "2025-06-03", clockIn: "09:10 AM", clockOut: "06:00 PM" },
-      { date: "2025-06-04", clockIn: "09:10 AM", clockOut: "06:00 PM" },
-      { date: "2025-06-05", clockIn: "09:10 AM", clockOut: "06:00 PM" },
-    ]);
-    setHolidays(["2025-06-08", "2025-06-15"]);
-  }, []);
+  // Assume localStorage has employee object with emp_id
+  //const employee = JSON.parse(localStorage.getItem("employee"));
+  const { employee } = useContext(AuthContext);
+  const emp_id = employee?.emp_id;
+  //console.log("Employee ID:", emp_id);
 
-  useEffect(() => {
-  // Group log by date, pick first IN and last OUT for each date
-    const byDate = {};
-    attendanceLog.forEach(entry => {
-      const date = entry.timestamp.slice(0, 10); // "YYYY-MM-DD"
-      if (!byDate[date]) byDate[date] = { clockIns: [], clockOuts: [] };
-      if (entry.type === "IN") byDate[date].clockIns.push(entry.timestamp);
-      if (entry.type === "OUT") byDate[date].clockOuts.push(entry.timestamp);
+  // Track which month is shown in the calendar
+  const [calendarDate, setCalendarDate] = useState(dayjs().format("YYYY-MM"));
+
+  // Fetch attendance and shift details
+  // useEffect(() => {
+  //   if (!emp_id) return;
+  //   // Get month start/end
+  //   //const start = '2025-07-01';//dayjs(calendarDate + "-01").startOf("month").format("YYYY-MM-DD");
+  //   //const end = '2025-07-31';//dayjs(calendarDate + "-01").endOf("month").format("YYYY-MM-DD");
+
+  //   const start = dayjs(`${calendarDate}-01`).startOf("month").format("YYYY-MM-DD");
+  //   const end = dayjs(`${calendarDate}-01`).endOf("month").format("YYYY-MM-DD");
+  //   console.log("Fetching attendance for:", start, "to", end);
+  //   setLoading(true);
+
+  //   fetch(`http://127.0.0.1:8000/api/attendance?emp_id=${emp_id}&start=${start}&end=${end}`)
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       console.log("Present Days (for " + start + "):", data.attendance || []);
+  //       setPresentDays(data.attendance || []);
+  //       //console.log("Present Days:", data.attendance);
+  //       setHolidays(data.holidays || []);
+  //       setStats({
+  //         shift: data.shift || "-",
+  //         averageWorking: data.average_working || "-",
+  //         averageLate: data.average_late || "-",
+  //         absent: data.absent || "-"
+  //       });
+  //       setLoading(false);
+  //     });
+  // }, [calendarDate, emp_id]);
+
+  // Handle month change in calendar
+// function handleDatesSet(arg) {
+//   const newMonth = dayjs(arg.start).format("YYYY-MM");
+//   if (newMonth !== calendarDate) {
+//     setCalendarDate(newMonth);
+//   }
+// }
+
+const handleClockOut = async () => {
+  const employee = JSON.parse(localStorage.getItem("employee")); // or get emp_id from context
+  if (!employee?.emp_id) {
+    alert("No employee id found!");
+    return;
+  }
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/clockout", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emp_id: employee.emp_id }),
     });
+    const data = await res.json();
+    if (data.status === "success") {
+      // Optionally: refresh attendance, show message, etc.
+      clockOut(); // Your existing local state logic
+    } else {
+      alert("Failed to clock out: " + (data.error || ""));
+    }
+  } catch (err) {
+    alert("Clock out API error: " + err);
+  }
+};
 
-    const present = Object.keys(byDate).map(date => {
-      const inTimes = byDate[date].clockIns.sort();
-      const outTimes = byDate[date].clockOuts.sort();
-      return {
-        date,
-        clockIn: inTimes.length ? formatTime(inTimes[0]) : "-",
-        clockOut: outTimes.length ? formatTime(outTimes[outTimes.length - 1]) : "-"
-      };
+
+function handleDatesSet(arg) {
+  const month = dayjs(arg.start).format("YYYY-MM");
+  const start = dayjs(arg.start).format("YYYY-MM-DD");
+  const end = dayjs(arg.end).subtract(1, 'day').format("YYYY-MM-DD"); // FullCalendar's end is exclusive
+
+  console.log("Fetching attendance for:", start, "to", end);
+  setLoading(true);
+
+  fetch(`http://127.0.0.1:8000/api/attendance?emp_id=${emp_id}&start=${start}&end=${end}`)
+    .then(res => res.json())
+    .then(data => {
+      setPresentDays(data.attendance || []);
+      setHolidays(data.holidays || []);
+      setStats({
+        shift: data.shift || "-",
+        averageWorking: data.average_working || "-",
+        averageLate: data.average_late || "-",
+        absent: data.absent || "-"
+      });
+      setLoading(false);
     });
-    setPresentDays(present);
-  }, [attendanceLog]);
+}
 
+  //if (loading) return <div>Loading attendance...</div>;
   return (
     <div className="dashboard-container">
-      {/* Stats Card */}
       <div className="dashboard-stats-card">
         <div className="stats-group">
           <div className="stats-header">Total</div>
@@ -77,7 +128,7 @@ const Dashboard = () => {
               <div className="stats-label-sub">Present Days</div>
             </div>
             <div>
-              <div className="stats-value-main">{getAbsentDays(presentDays)}</div>
+              <div className="stats-value-main">{stats.absent}</div>
               <div className="stats-label-sub">Absent Days</div>
             </div>
           </div>
@@ -86,11 +137,11 @@ const Dashboard = () => {
           <div className="stats-header">Average</div>
           <div className="stats-row">
             <div>
-              <div className="stats-value-main">{getAverageWorkingHours(presentDays)}</div>
+              <div className="stats-value-main">{stats.averageWorking}</div>
               <div className="stats-label-sub">Working Hours</div>
             </div>
             <div>
-              <div className="stats-value-main">{getAverageLateBy(presentDays)}</div>
+              <div className="stats-value-main">{stats.averageLate}</div>
               <div className="stats-label-sub">Late By</div>
             </div>
           </div>
@@ -99,68 +150,48 @@ const Dashboard = () => {
           <div className="stats-header">Shift</div>
           <div className="stats-row">
             <div>
-              <div className="stats-value-main">A (07:00 - 15:30)</div>
+              <div className="stats-value-main">{stats.shift}</div>
               <div className="stats-label-sub">Current Shift</div>
             </div>
           </div>
         </div>
-        {/* CLOCKIN/CLOCKOUT BUTTON */}
-        
         <div className="stats-group divider clock-btn-group">
           <button className="clock-btn" onClick={() => setShowRegularize(true)}>
             Regularize
           </button>
-          <RegularizeAttendanceModal
-            open={showRegularize}
-            onClose={() => setShowRegularize(false)}
-            user={{ name: "Lavkush" }} // Or use from AuthContext
-          />
-
-          {!isClockedIn ? (<button className="clock-btn" onClick={() => setShowVerifyModal(true)}>
-            Clock - In
-          </button>):(
-            <button className="clock-btn" onClick={handleClockOut}>
-              Clock - Out
-            </button>
+          <RegularizeAttendanceModal open={showRegularize} onClose={() => setShowRegularize(false)} />
+          {!isClockedIn ? (
+            <button className="clock-btn" onClick={() => setShowVerifyModal(true)}>Clock - In</button>
+          ) : (
+            <button className="clock-btn" onClick={handleClockOut}>Clock - Out</button>
           )}
         </div>
-        
       </div>
-      
-
-      {/* Verify Modal */}
-      {showVerifyModal && (
-        <VerifyModal onClose={() => setShowVerifyModal(false)} />
-      )}
-
+      {showVerifyModal && (<VerifyPage onClose={() => setShowVerifyModal(false)} />)}
       <FullCalendar
         plugins={[dayGridPlugin]}
         initialView="dayGridMonth"
         height="auto"
         aspectRatio={1.5}
+        datesSet={handleDatesSet}
         dayCellContent={arg => renderDayCell(arg, presentDays)}
         dayCellClassNames={arg => getDayCellClassNames(arg, presentDays, holidays)}
       />
     </div>
   );
-};
+}
 
-// --- helper functions (unchanged) ---
+// --- helper functions (minimal, no date hardcoding) ---
 function getDayCellClassNames(arg, presentDays, holidays) {
   const currentDate = dayjs(arg.date).format("YYYY-MM-DD");
   const today = dayjs().format("YYYY-MM-DD");
-  const weekday = dayjs(arg.date).day(); // Sunday = 0, Saturday = 6
-
-  const isHoliday = holidays && holidays.includes(currentDate);
+  const weekday = dayjs(arg.date).day();
+  const isHoliday = holidays.includes(currentDate);
   const isPresent = presentDays.find(d => d.date === currentDate);
 
-  if (currentDate === today) {
-    return ["day-today"];
-  } else if (isHoliday || weekday === 0 || weekday === 6) {
-    return ["day-weekend"];
-  } else if (dayjs(arg.date).isBefore(today, "day")) {
-    return isPresent ? ["day-present"] : ["day-absent"];
-  }
+  if (currentDate === today) return ["day-today"];
+  if (isHoliday || weekday === 0 || weekday === 6) return ["day-weekend"];
+  if (dayjs(arg.date).isBefore(today, "day")) return isPresent ? ["day-present"] : ["day-absent"];
   return [];
 }
 
@@ -169,6 +200,8 @@ function renderDayCell(arg, presentDays) {
   const match = presentDays.find(d => d.date === currentDate);
   const clockIn = match ? match.clockIn : "-";
   const clockOut = match ? match.clockOut : "-";
+  //console.log("presentdays Rendering---",presentDays);
+  //console.log("Rendering cell for:---", currentDate, "Clock In:", clockIn, "Clock Out:", clockOut);
   return (
     <div className="day-cell-content">
       <div className="fc-day-number">{arg.dayNumberText}</div>
@@ -177,47 +210,3 @@ function renderDayCell(arg, presentDays) {
     </div>
   );
 }
-
-function getAbsentDays(presentDays) {
-  const month = 5; // 0-based: 5=June
-  const year = 2025;
-  const presentSet = new Set(presentDays.map(d => d.date));
-  let totalWorkingDays = 0;
-  for (let day = 1; day <= 30; day++) {
-    const date = dayjs(`${year}-06-${String(day).padStart(2, "0")}`);
-    if (![0, 6].includes(date.day())) totalWorkingDays++;
-  }
-  return totalWorkingDays - presentSet.size;
-}
-
-function getAverageWorkingHours(presentDays) {
-  if (presentDays.length === 0) return "-";
-  let total = 0;
-  presentDays.forEach(d => {
-    const start = dayjs(`2025-01-01 ${d.clockIn}`, "YYYY-MM-DD hh:mm A");
-    const end = dayjs(`2025-01-01 ${d.clockOut}`, "YYYY-MM-DD hh:mm A");
-    total += end.diff(start, "minute");
-  });
-  const avg = total / presentDays.length;
-  const hours = Math.floor(avg / 60);
-  const minutes = Math.round(avg % 60);
-  return `${hours}h ${minutes}m`;
-}
-
-function getAverageLateBy(presentDays) {
-  if (presentDays.length === 0) return "-";
-  let total = 0;
-  const standardTime = dayjs("2025-01-01 09:00 AM", "YYYY-MM-DD hh:mm A");
-  presentDays.forEach(d => {
-    const inTime = dayjs(`2025-01-01 ${d.clockIn}`, "YYYY-MM-DD hh:mm A");
-    const late = Math.max(0, inTime.diff(standardTime, "minute"));
-    total += late;
-  });
-  const avg = total / presentDays.length;
-  if (avg < 1) return "On Time";
-  const hours = Math.floor(avg / 60);
-  const minutes = Math.round(avg % 60);
-  return `${hours}h ${minutes}m`;
-}
-
-export default Dashboard;

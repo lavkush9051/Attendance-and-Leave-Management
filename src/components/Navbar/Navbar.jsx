@@ -8,11 +8,21 @@ import logo from '../../assets/jnpt-logo.png';
 import { FaUserCircle } from 'react-icons/fa';
 
 
+const ADMIN_ROLES = [
+  "MANAGER",
+  "SENIOR MANAGER",
+  "GENERAL MANAGER",
+  "DY GENERAL MANAGER",
+  "ASSISTANT MANAGER"
+];
 
 
 function Navbar() {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout, employee } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const canSeeAdmin = employee && ADMIN_ROLES.includes(employee.emp_designation?.toUpperCase());
+
 
   const { isClockedIn, clockOut } = useContext(AuthContext);
 
@@ -59,7 +69,7 @@ function Navbar() {
      
           <li><Link to="/reporting-level">Reporting Level</Link></li>
           <li><Link to="/payroll-taxcenter">Payroll & Tax Center</Link></li>
-          <li><Link to="/admin">AdminPanel</Link></li>
+          {canSeeAdmin && <li><Link to="/admin">AdminPanel</Link></li>}
           <button onClick={logout} className="logout-btn">Logout</button>
           <Link className="userprofile-icon" to="/profile">
             <FaUserCircle  style={{ fontSize: "25px", color: "white" }}/>

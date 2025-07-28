@@ -2,47 +2,106 @@ import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from '../../context/AuthContext';
 import "./LeaveDashboard.css";
 
+// Manager status tracker logic with "Not Applicable" for L2 if L1 rejected
+function renderManagerLevels(request) {
+  const l1Status = request.leave_req_l1_status;
+  const l2Status =
+    l1Status === "Rejected"
+      ? "Not Applicable"
+      : request.leave_req_l2_status;
+
+  return (
+    <div className="manager-tracker-wrapper glass-effect">
+      {/* L2 Manager */}
+      <div
+        className={`manager-level ${
+          l1Status === "Rejected"
+            ? "not-applicable"
+            : l2Status === "Approved"
+            ? "approved"
+            : l2Status === "Rejected"
+            ? "rejected"
+            : "pending"
+        }`}
+      >
+        <strong>L2 Manager:</strong>{" "}
+        <span
+          className={`manager-status-pill ${
+            l1Status === "Rejected"
+              ? "not-applicable"
+              : l2Status === "Approved"
+              ? "approved"
+              : l2Status === "Rejected"
+              ? "rejected"
+              : "pending"
+          }`}
+        />
+        {l1Status === "Rejected" ? "Not Applicable" : l2Status}
+      </div>
+      <div className="arrow-up">↑</div>
+      {/* L1 Manager */}
+      <div
+        className={`manager-level ${
+          l1Status === "Approved"
+            ? "approved"
+            : l1Status === "Rejected"
+            ? "rejected"
+            : "pending"
+        }`}
+      >
+        <strong>L1 Manager:</strong>{" "}
+        <span
+          className={`manager-status-pill ${
+            l1Status === "Approved"
+              ? "approved"
+              : l1Status === "Rejected"
+              ? "rejected"
+              : "pending"
+          }`}
+        />
+        {l1Status}
+      </div>
+      <div className="arrow-up">↑</div>
+    </div>
+  );
+}
+
+const getStatus = (req) => {
+  if (req.leave_req_l1_status === "Rejected" || req.leave_req_l2_status === "Rejected") {
+    return "Rejected";
+  }
+  if (req.leave_req_l1_status === "Approved" && req.leave_req_l2_status === "Approved") {
+    return "Approved";
+  }
+  return "Pending";
+};
+
+const getStatusClass = (req) => {
+  if (req.leave_req_l1_status === "Rejected" || req.leave_req_l2_status === "Rejected") {
+    return "rejected";
+  }
+  if (req.leave_req_l1_status === "Approved" && req.leave_req_l2_status === "Approved") {
+    return "approved";
+  }
+  return "pending";
+};
+
 const LeaveDashboard = () => {
   const [expandedRow, setExpandedRow] = useState(null);
   const [leaveRequests, setLeaveRequests] = useState([]);
-  const { employee } = useContext(AuthContext); // Get logged-in employee
+  const { employee } = useContext(AuthContext);
 
-  // Fetch leave requests for this employee on mount
   useEffect(() => {
-    //if (!employee) return;
-    fetch(`http://127.0.0.1:8000/api/leave-requests/10001`)//{emp_id}
+    if (!employee?.emp_id) return;
+    fetch(`http://127.0.0.1:8000/api/leave-requests/${employee.emp_id}`)
       .then(res => res.json())
       .then(data => setLeaveRequests(data))
-      .catch(err => setLeaveRequests([]));
+      .catch(() => setLeaveRequests([]));
   }, [employee]);
 
   const toggleRow = (index) => {
     setExpandedRow(expandedRow === index ? null : index);
   };
-
-  const renderManagerLevels = (status) => (
-    <div className="manager-tracker-wrapper glass-effect">
-      <div className={`manager-level ${status === "Approved" ? "approved" : status === "Rejected" ? "rejected" : "pending"}`}>
-        <strong>L2 Manager:</strong>{" "}
-        <span className={`manager-status-pill ${status === "Approved"
-            ? "approved"
-            : status === "Rejected"
-              ? "rejected"
-              : "pending"
-          }`}></span>
-        {status === "Approved"
-          ? "Approved"
-          : status === "Rejected"
-            ? "Not Applicable"
-            : "Pending"}
-      </div>
-      <div className="arrow-up">↑</div>
-      <div className={`manager-level ${status === "Rejected" ? "rejected" : "approved"}`}>
-        <strong>L1 Manager:</strong> {status === "Rejected" ? "Rejected" : "Approved"}
-      </div>
-      <div className="arrow-up">↑</div>
-    </div>
-  );
 
   const handleRevoke = (leave_req_id) => {
     const confirmDelete = window.confirm("Are you sure you want to revoke this leave request?");
@@ -78,7 +137,7 @@ const LeaveDashboard = () => {
               <React.Fragment key={request.leave_req_id}>
                 {expandedRow === index && (
                   <tr className="manager-row">
-                    <td colSpan="9">{renderManagerLevels(request.leave_req_status)}</td>
+                    <td colSpan="9">{renderManagerLevels(request)}</td>
                   </tr>
                 )}
                 <tr
@@ -94,11 +153,11 @@ const LeaveDashboard = () => {
                   <td>{request.leave_req_to_dt}</td>
                   <td>{request.leave_req_reason}</td>
                   <td>
-                    <span className={`status-badge ${request.leave_req_status.toLowerCase()}`}>
-                      {request.leave_req_status}
+                    <span className={`status-badge ${getStatusClass(request)}`}>
+                      {getStatus(request)}
                     </span>
                   </td>
-                  <td onClick={(e) => e.stopPropagation()}>
+                  <td onClick={e => e.stopPropagation()}>
                     {request.leave_req_status === "Pending" && (
                       <button
                         className="revoke-btn"

@@ -16,9 +16,7 @@ import { LeaveRequestsProvider } from "../src/context/LeaveRequestsContext";
 import { AttendanceRequestsProvider } from "../src/context/AttendanceRequestsContext";
 import ReportingLevel from "./pages/ReportingLevel/ReportingLevel";
 import PayrollAndTaxCenter from "./pages/PayrollAndTaxCenter/PayrollAndTaxCenter";
-
-
-
+import { AuthContext } from "./context/AuthContext";
 
 
 function App() {
@@ -37,7 +35,20 @@ function App() {
               <Route path="/verify" element={<ProtectedRoute><VerifyPage /></ProtectedRoute> } />
               <Route path="/leave-management" element={<LeaveManagement />} />
               <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><AdminPanel/></ProtectedRoute>} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedDesignations={[
+                    "MANAGER",
+                    "SENIOR MANAGER",
+                    "GENERAL MANAGER",
+                    "DY GENERAL MANAGER",
+                    "ASSISTANT MANAGER"
+                  ]}>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                }
+              />              
               <Route path="/reporting-level" element={<ProtectedRoute><ReportingLevel /></ProtectedRoute>} />
               <Route path="/payroll-taxcenter" element={<ProtectedRoute><PayrollAndTaxCenter /></ProtectedRoute>} />
               {/* Add more routes as needed */}

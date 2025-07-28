@@ -11,6 +11,7 @@ export default function ReportingLevel() {
     const employee = JSON.parse(localStorage.getItem("employee"));
     if (!employee) return;
     const { emp_id, emp_l1, emp_l2 } = employee;
+    console.log("Employee ID:", emp_id, "L1 ID:", emp_l1, "L2 ID:", emp_l2);
     fetch(`http://127.0.0.1:8000/api/reporting-levels?emp_id=${emp_id}&l1_id=${emp_l1}&l2_id=${emp_l2}`)
       .then(res => res.json())
       .then(data => setLevels([data.employee, data.l1, data.l2]));

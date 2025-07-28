@@ -10,6 +10,7 @@ const LeaveDetails = ({ leaveBalances }) => {
         <table className="details-table">
           <thead>
             <tr>
+              <th>Leave Id</th>
               <th>Leave Type</th>
               <th>Total</th>
               <th>Taken</th>
@@ -19,10 +20,11 @@ const LeaveDetails = ({ leaveBalances }) => {
           <tbody>
             {leaveBalances.map((balance) => (
               <tr key={balance.type}>
+                <td>{balance.abrev}</td>
                 <td>{balance.type}</td>
-                <td>{balance.total}</td>
+                <td>{balance.total ? balance.total : "-"}</td>
                 <td>{balance.taken}</td>
-                <td className="remaining-cell">{balance.remaining}</td>
+                <td className="remaining-cell">{balance.remaining? balance.remaining : "-"}</td>
               </tr>
             ))}
           </tbody>

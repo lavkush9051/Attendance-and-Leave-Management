@@ -329,7 +329,7 @@ export default function ShiftManagement() {
         onSelect={handleSelect}
         onSelectAll={handleSelectAll}
       />
-      <CalendarView data={data} />
+      {/* <CalendarView data={data} /> */}
     </div>
   );
 }

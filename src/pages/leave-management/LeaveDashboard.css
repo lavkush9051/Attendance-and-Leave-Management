@@ -153,9 +153,9 @@
   color: #c62828;
 }
 
-.manager-level.notApplicable {
-  background-color: #fdc2cb;
-  color: #c62828;
+.manager-level.not-applicable {
+    background-color: #8f8f8f;
+    color: #ffffff;
 }
 
 .manager-level.pending {
