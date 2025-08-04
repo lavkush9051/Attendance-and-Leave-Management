@@ -125,11 +125,14 @@ import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../signup/Form.css';
 import axios from 'axios';
+import { API_BASE_URL } from "../../config";
+
 
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
   const [form, setForm] = useState({ username: '', password: '' });
+ 
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -138,7 +141,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://127.0.0.1:8000/login', {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
         username: form.username,
         password: form.password,
       });
@@ -147,7 +150,7 @@ const Login = () => {
       //localStorage.setItem('token', response.data.token);
       //localStorage.setItem('employee', JSON.stringify(response.data.employee));
       login(response.data.token, response.data.employee); // Save token in context & localStorage
-      navigate('/dashboard');
+      navigate('/profile');
     } catch (error) {
         // If error.response exists, show backend message. Otherwise, generic error.
         const message =

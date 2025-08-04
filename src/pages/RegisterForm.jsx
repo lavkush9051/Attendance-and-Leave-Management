@@ -4,7 +4,7 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
 import './VerifyPage.css'
-
+import { API_BASE_URL } from "../config";
 
 const RegisterForm = () => {
 
@@ -34,9 +34,9 @@ const RegisterForm = () => {
     capturedImages.forEach((img, idx) => {
       formData.append("files", dataURLtoFile(img, `image${idx + 1}.jpg`));
     });
-
+//"http://127.0.0.1:8000/register"
     try {
-      const res = await axios.post("http://127.0.0.1:8000/register", formData);
+      const res = await axios.post(`${API_BASE_URL}/register`, formData);
       setStatus(`✅ Registered successfully as ${res.data.user}`);
     } catch (error) {
       console.error(error);

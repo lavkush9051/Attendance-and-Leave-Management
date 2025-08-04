@@ -29,7 +29,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/" element={<Navigate to="/profile" />} />
               <Route path="/register" element={<ProtectedRoute><RegisterForm /></ProtectedRoute> } />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
               <Route path="/verify" element={<ProtectedRoute><VerifyPage /></ProtectedRoute> } />

@@ -3,6 +3,7 @@ import LeaveDashboard from "./LeaveDashboard";
 import LeaveDetails from "./LeaveDetails";
 import LeaveRequestForm from "./LeaveRequestForm";
 import "./LeaveManagement.css";
+import { API_BASE_URL } from "../../config";
 
 
 const LeaveManagement = () => {
@@ -17,9 +18,10 @@ const LeaveManagement = () => {
 
   const [leaveBalances, setLeaveBalances] = useState([]);
   const [loading, setLoading] = useState(true);
+  //"http://127.0.0.1:8000/api/leave-types"
   useEffect(() => {
       // Fetch leave types from backend
-      fetch("http://127.0.0.1:8000/api/leave-types")
+      fetch(`${API_BASE_URL}/api/leave-types`)
         .then(res => res.json())
         .then(data => {
           // Backend should return: { leave_types: [{ type, abrev, total }] }

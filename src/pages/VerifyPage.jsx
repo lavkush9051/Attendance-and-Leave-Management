@@ -3,6 +3,8 @@ import Webcam from "react-webcam";
 import axios from "axios";
 import './VerifyPage.css';
 import { AuthContext } from "../context/AuthContext";
+import { API_BASE_URL } from "../config";
+
 
 
 function dataURLtoFile(dataurl, filename) {
@@ -54,9 +56,9 @@ export default function VerifyPage({ onClose }) {
       const formData = new FormData();
       formData.append("file", dataURLtoFile(screenshot, "capture.jpg"));
       formData.append("face_user_emp_id", employee.emp_id);
-
+      // "http://127.0.0.1:8000/verify"
       const response = await axios.post(
-        "http://127.0.0.1:8000/verify",
+        `${API_BASE_URL}/verify`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

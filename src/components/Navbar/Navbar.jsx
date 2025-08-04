@@ -47,7 +47,7 @@ function Navbar() {
         <span className="title">JNPA</span>
       </div>
 
-      <button className="hamburger" onClick={toggleMenu}>
+      {/* <button className="hamburger" onClick={toggleMenu}>
         ☰
       </button>
 
@@ -57,14 +57,7 @@ function Navbar() {
         {isAuthenticated ? (
           <>
           <li><Link to="/dashboard">Dashboard</Link></li>
-          {/* <li><Link to="/register">Register</Link></li> */}
-          {/* {!isClockedIn ? (
-            <li><Link to="/verify">Clock In</Link></li>
-          ) : (
-            <button onClick={handleClockOut} className="nav-btn">
-              Clock Out
-            </button>
-          )} */}
+
           <li><Link to="/leave-management">Leave Management</Link></li>
      
           <li><Link to="/reporting-level">Reporting Level</Link></li>
@@ -83,7 +76,7 @@ function Navbar() {
           </>
         )}
         
-      </ul>
+      </ul> */}
     </nav>
   );
 }

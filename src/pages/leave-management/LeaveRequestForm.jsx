@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { AuthContext } from '../../context/AuthContext';
 import "./LeaveRequestForms.css";
+import { API_BASE_URL } from "../../config";
 
 const LeaveRequestForm = ({ onSubmit, onCancel }) => {
   const { employee } = useContext(AuthContext);
@@ -38,10 +39,10 @@ const LeaveRequestForm = ({ onSubmit, onCancel }) => {
     data.append("leave_to_dt", formData.toDate);
     data.append("leave_reason", finalReason);
     if (evidenceFile) data.append("evidence", evidenceFile);
-
+//"http://127.0.0.1:8000/api/leave-request"
     // Send POST to backend
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/leave-request", {
+      const response = await fetch(`${API_BASE_URL}/api/leave-request`, {
         method: "POST",
         body: data
       });

@@ -86,6 +86,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -99,9 +100,9 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+// "http://127.0.0.1:8000/signup"
     try {
-      await axios.post("http://127.0.0.1:8000/signup", user);
+      await axios.post(`${API_BASE_URL}/signup`, user);
       alert('Signup successful! Please login.');
       navigate('/login');
     } catch (err) {

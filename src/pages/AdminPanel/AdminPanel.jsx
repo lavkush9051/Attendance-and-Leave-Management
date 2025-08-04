@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import "./AdminPanel.css";
 import ShiftManagement from "./ShiftManagement";
 import { AuthContext } from "../../context/AuthContext";
+import { API_BASE_URL } from "../../config";
+import ReportsTab from "./ReportsTab";
 
 // Main AdminPanel component
 const AdminPanel = () => {
@@ -13,7 +15,7 @@ const AdminPanel = () => {
   // Fetch leave requests
   useEffect(() => {
     if (!employee?.emp_id) return;
-    fetch(`http://127.0.0.1:8000/api/leave-requests?admin_id=${employee.emp_id}`)
+    fetch(`${API_BASE_URL}/api/leave-requests?admin_id=${employee.emp_id}`)
       .then(res => res.json())
       .then(data => setLeaveRequests(data))
       .catch(err => console.error("Failed to fetch leave requests", err));
@@ -22,7 +24,7 @@ const AdminPanel = () => {
   // Fetch attendance requests
   useEffect(() => {
     if (!employee?.emp_id) return;
-    fetch(`http://127.0.0.1:8000/api/attendance-requests?admin_id=${employee.emp_id}`)
+    fetch(`${API_BASE_URL}/api/attendance-requests?admin_id=${employee.emp_id}`)
       .then(res => res.json())
       .then(data => setAttendanceRequests(data))
       .catch(err => console.error("Failed to fetch attendance requests", err));
@@ -31,7 +33,7 @@ const AdminPanel = () => {
   // Approve/Reject Leave
   const handleLeaveStatus = async (leave_req_id, action) => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/leave-request/action", {
+      const res = await fetch(`${API_BASE_URL}/api/leave-request/action`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ leave_req_id, action, admin_id: employee.emp_id }),
@@ -39,7 +41,7 @@ const AdminPanel = () => {
       const result = await res.json();
       if (result.status === "success") {
         // Refetch leave requests
-        fetch(`http://127.0.0.1:8000/api/leave-requests?admin_id=${employee.emp_id}`)
+        fetch(`${API_BASE_URL}/api/leave-requests?admin_id=${employee.emp_id}`)
           .then(res => res.json())
           .then(data => setLeaveRequests(data));
       } else {
@@ -53,14 +55,14 @@ const AdminPanel = () => {
   // Approve/Reject Attendance
   const handleAttendanceStatus = async (art_id, action) => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/attendance-request/action", {
+      const res = await fetch(`${API_BASE_URL}/api/attendance-request/action`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ art_id, action, admin_id: employee.emp_id }),
       });
       const result = await res.json();
       if (result.status === "success") {
-        fetch(`http://127.0.0.1:8000/api/attendance-requests?admin_id=${employee.emp_id}`)
+        fetch(`${API_BASE_URL}/api/attendance-requests?admin_id=${employee.emp_id}`)
           .then(res => res.json())
           .then(data => setAttendanceRequests(data));
       } else {
@@ -79,6 +81,7 @@ const AdminPanel = () => {
         <button className={tab === "leave" ? "active" : ""} onClick={() => setTab("leave")}>Leave Requests</button>
         <button className={tab === "attendance" ? "active" : ""} onClick={() => setTab("attendance")}>Attendance Requests</button>
         <button className={tab === "shift" ? "active" : ""} onClick={() => setTab("shift")}>Shift Management</button>
+        <button className={tab === "reports" ? "active" : ""} onClick={() => setTab("reports")}>Reports</button>
       </div>
 
       {tab === "leave" && (
@@ -94,6 +97,7 @@ const AdminPanel = () => {
         />
       )}
       {tab === "shift" && <ShiftManagement />}
+      {tab === "reports" && <ReportsTab />}
     </div>
   );
 };

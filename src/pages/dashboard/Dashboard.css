@@ -124,7 +124,7 @@ th {
 .stats-group.divider {
   border-left: 1.5px solid #e0e7ef;
   padding-left: 28px;
-  margin-left: 16px;
+  /* margin-left: 16px; */
 }
 
 

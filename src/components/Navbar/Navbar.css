@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #003B5C;
+  background-color: white#003B5C;
   padding: 10px 20px;
   position: relative;
 }
@@ -20,7 +20,7 @@
 }
 
 .title {
-  color: white;
+  color: #003b5c;
   font-size: 20px;
   font-weight: bold;
   font-family: sans-serif;
@@ -104,8 +104,9 @@
  font-size: 17px;
  border-radius: 4px;
  overflow: hidden;
- background: #ffffff;
- color: #003b5c;
+ background: #003b5c;
+ color: #ffffff;
+ margin-top: 10px;
 }
 
 .logout-btn span {

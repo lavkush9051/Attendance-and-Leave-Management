@@ -129,6 +129,7 @@ import FilterBar from "./Shift/FilterBar";
 import ShiftTable from "./Shift/ShiftTable";
 import CalendarView from "./Shift/CalendarView";
 import "./ShiftManagement.css";
+import { API_BASE_URL } from "../../config";
 
 // Shift pattern logic (can be moved to its own helper file if you wish)
 const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -198,7 +199,7 @@ export default function ShiftManagement() {
   const [bulkWeekOff, setBulkWeekOff] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/employees")
+    fetch(`${API_BASE_URL}/api/employees`)
       .then((response) => response.json())
       .then((result) => {
         setData(result);
@@ -258,7 +259,7 @@ export default function ShiftManagement() {
 
   // API call
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/employees/weekoff", {
+    const res = await fetch(`${API_BASE_URL}/api/employees/weekoff`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -288,41 +289,48 @@ export default function ShiftManagement() {
 
   return (
     <div className="shift-management-wrapper">
-      <h2>Shift Management</h2>
-      <FilterBar
-        filters={filters}
-        onFilter={setFilters}
-        shiftOptions={shiftOptions}
-        weekOffList={weekOffList}
-        showDate={true}
-      />
+      <div className="shift-management-header">
+  <h2>Shift Management</h2>
+  <FilterBar
+    filters={filters}
+    onFilter={setFilters}
+    shiftOptions={shiftOptions}
+    weekOffList={weekOffList}
+    showDate={true}
+  />
+</div>
 
-      {selectedIds.length > 0 && (
-        <div className="bulk-actions" style={{ marginBottom: 12 }}>
-          <span>
-            <b>{selectedIds.length}</b> selected &nbsp; 
-            <button onClick={() => setShowBulkChange(v => !v)}>
-              Change Week Off
-            </button>
-          </span>
-          {showBulkChange && (
-            <>
-              <select value={bulkWeekOff} onChange={e => setBulkWeekOff(e.target.value)}>
-                <option value="">Select Day</option>
-                {weekOffList.slice(0, 7).map(day => (
-                  <option key={day} value={day}>{day}</option>
-                ))}
-              </select>
-              <button
-                onClick={handleBulkWeekOffChange}
-                disabled={!bulkWeekOff}
-                style={{ background: "#1e3a8a", color: "#fff" }}
-              >Apply</button>
-            </>
-          )}
-        </div>
-      )}
+{selectedIds.length > 0 && (
+  <div className="bulk-actions-responsive">
+    <div className="bulk-actions-selected">
+      <span>
+        <b>{selectedIds.length}</b> selected
+      </span>
+      <button onClick={() => setShowBulkChange(v => !v)} className="bulk-change-btn">
+        Change Week Off
+      </button>
+    </div>
+    {showBulkChange && (
+      <div className="bulk-change-controls">
+        <select value={bulkWeekOff} onChange={e => setBulkWeekOff(e.target.value)}>
+          <option value="">Select Day</option>
+          {weekOffList.slice(0, 7).map(day => (
+            <option key={day} value={day}>{day}</option>
+          ))}
+        </select>
+        <button
+          onClick={handleBulkWeekOffChange}
+          disabled={!bulkWeekOff}
+          className="apply-btn"
+        >
+          Apply
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
+      <div className="table-responsive">
       <ShiftTable
         data={filteredData}
         selectedIds={selectedIds}
@@ -330,6 +338,7 @@ export default function ShiftManagement() {
         onSelectAll={handleSelectAll}
       />
       {/* <CalendarView data={data} /> */}
+    </div>
     </div>
   );
 }

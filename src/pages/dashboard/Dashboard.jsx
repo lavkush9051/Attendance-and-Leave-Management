@@ -6,6 +6,16 @@ import "./Dashboard.css";
 import VerifyPage from "../VerifyPage";
 import { AuthContext } from '../../context/AuthContext';
 import RegularizeAttendanceModal from "../../components/RegularizeAttendanceModal/RegularizeAttendanceModal";
+import { API_BASE_URL } from "../../config";
+import {getShiftGroupForDate} from "../../components/getShiftGroupForDate";
+
+
+const shiftTimings = {
+  1: { start: '07:00', end: '15:30' },   // Example timings for Shift 1
+  2: { start: '15:00', end: '23:30' },   // Example timings for Shift 2
+  3: { start: '23:00', end: '07:30' },    // Example timings for Shift 3
+  General: { start: '10:00', end: '17:45' }
+};
 
 export default function Dashboard() {
   const [presentDays, setPresentDays] = useState([]);
@@ -31,42 +41,32 @@ export default function Dashboard() {
   // Track which month is shown in the calendar
   const [calendarDate, setCalendarDate] = useState(dayjs().format("YYYY-MM"));
 
-  // Fetch attendance and shift details
-  // useEffect(() => {
-  //   if (!emp_id) return;
-  //   // Get month start/end
-  //   //const start = '2025-07-01';//dayjs(calendarDate + "-01").startOf("month").format("YYYY-MM-DD");
-  //   //const end = '2025-07-31';//dayjs(calendarDate + "-01").endOf("month").format("YYYY-MM-DD");
+let employeeWeekoff = employee.emp_weekoff; // Could be "Saturday", "Saturday,Sunday", or ["Saturday","Sunday"]
 
-  //   const start = dayjs(`${calendarDate}-01`).startOf("month").format("YYYY-MM-DD");
-  //   const end = dayjs(`${calendarDate}-01`).endOf("month").format("YYYY-MM-DD");
-  //   console.log("Fetching attendance for:", start, "to", end);
-  //   setLoading(true);
+// Convert comma string to array for consistency
+if (typeof employeeWeekoff === "string" && employeeWeekoff.includes(',')) {
+  employeeWeekoff = employeeWeekoff.split(',').map(day => day.trim());
+}
 
-  //   fetch(`http://127.0.0.1:8000/api/attendance?emp_id=${emp_id}&start=${start}&end=${end}`)
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       console.log("Present Days (for " + start + "):", data.attendance || []);
-  //       setPresentDays(data.attendance || []);
-  //       //console.log("Present Days:", data.attendance);
-  //       setHolidays(data.holidays || []);
-  //       setStats({
-  //         shift: data.shift || "-",
-  //         averageWorking: data.average_working || "-",
-  //         averageLate: data.average_late || "-",
-  //         absent: data.absent || "-"
-  //       });
-  //       setLoading(false);
-  //     });
-  // }, [calendarDate, emp_id]);
+// Today's info
+const todayDateObj = new Date();
+const todayDateStr = todayDateObj.toISOString().slice(0, 10);
+const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const todayDayName = weekdays[todayDateObj.getDay()];
 
-  // Handle month change in calendar
-// function handleDatesSet(arg) {
-//   const newMonth = dayjs(arg.start).format("YYYY-MM");
-//   if (newMonth !== calendarDate) {
-//     setCalendarDate(newMonth);
-//   }
-// }
+// Helper: is today a weekoff for the employee?
+let weekoffToday = false;
+if (Array.isArray(employeeWeekoff)) {
+  weekoffToday = employeeWeekoff.map(day => day.toLowerCase()).includes(todayDayName.toLowerCase());
+} else if (typeof employeeWeekoff === "string") {
+  weekoffToday = todayDayName.toLowerCase() === employeeWeekoff.toLowerCase();
+}
+
+// Determine shift group or general
+const shiftGroupForToday = getShiftGroupForDate(employeeWeekoff, todayDateStr);
+const shiftTimingForToday = shiftTimings[shiftGroupForToday] || { start: '-', end: '-' };
+
+
 
 const handleClockOut = async () => {
   const employee = JSON.parse(localStorage.getItem("employee")); // or get emp_id from context
@@ -75,7 +75,7 @@ const handleClockOut = async () => {
     return;
   }
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/clockout", {
+    const res = await fetch(`${API_BASE_URL}/api/clockout`, { // fetch("http://127.0.0.1:8000/api/clockout
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ emp_id: employee.emp_id }),
@@ -101,7 +101,7 @@ function handleDatesSet(arg) {
   console.log("Fetching attendance for:", start, "to", end);
   setLoading(true);
 
-  fetch(`http://127.0.0.1:8000/api/attendance?emp_id=${emp_id}&start=${start}&end=${end}`)
+  fetch(`${API_BASE_URL}/api/attendance?emp_id=${emp_id}&start=${start}&end=${end}`)
     .then(res => res.json())
     .then(data => {
       setPresentDays(data.attendance || []);
@@ -115,6 +115,13 @@ function handleDatesSet(arg) {
       setLoading(false);
     });
 }
+
+// Get today's shift info for this employee
+// const todayShiftInfo = getTodayShiftInfo(
+//   employee.shift,
+//   employee.emp_weekoff,
+//   new Date() // or dayjs().toDate() if using dayjs
+// );
 
   //if (loading) return <div>Loading attendance...</div>;
   return (
@@ -150,8 +157,22 @@ function handleDatesSet(arg) {
           <div className="stats-header">Shift</div>
           <div className="stats-row">
             <div>
-              <div className="stats-value-main">{stats.shift}</div>
-              <div className="stats-label-sub">Current Shift</div>
+              <div className="stats-value-main">
+                {weekoffToday
+                  ? "Weekoff"
+                  : shiftGroupForToday === "General"
+                    ? "General"
+                    : shiftGroupForToday
+                      ? `Shift ${shiftGroupForToday}`
+                      : "-"
+                }
+              </div>
+              <div className="stats-label-sub">
+                {weekoffToday
+                  ? `Today is your Weekoff (${todayDayName})`
+                  : `Time: ${shiftTimingForToday.start} - ${shiftTimingForToday.end} | Today: ${todayDayName}`
+                }
+              </div>
             </div>
           </div>
         </div>

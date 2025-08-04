@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./RegularizeAttendanceModal.css";
+import { API_BASE_URL } from "../../config";
 
 const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -32,7 +33,7 @@ export default function RegularizeAttendanceModal({ open, onClose }) {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/attendance-regularization", {
+      const response = await fetch(`${API_BASE_URL}/api/attendance-regularization`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

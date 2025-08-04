@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from '../../context/AuthContext';
 import "./LeaveDashboard.css";
+import { API_BASE_URL } from "../../config";
 
 // Manager status tracker logic with "Not Applicable" for L2 if L1 rejected
 function renderManagerLevels(request) {
@@ -93,7 +94,8 @@ const LeaveDashboard = () => {
 
   useEffect(() => {
     if (!employee?.emp_id) return;
-    fetch(`http://127.0.0.1:8000/api/leave-requests/${employee.emp_id}`)
+    fetch(`${API_BASE_URL}/api/leave-requests/${employee.emp_id}`) //    fetch(`http://127.0.0.1:8000/api/leave-requests/${employee.emp_id}`)
+
       .then(res => res.json())
       .then(data => setLeaveRequests(data))
       .catch(() => setLeaveRequests([]));
@@ -106,7 +108,7 @@ const LeaveDashboard = () => {
   const handleRevoke = (leave_req_id) => {
     const confirmDelete = window.confirm("Are you sure you want to revoke this leave request?");
     if (confirmDelete) {
-      fetch(`http://127.0.0.1:8000/api/leave-requests/${leave_req_id}`, {
+      fetch(`${API_BASE_URL}/api/leave-requests/${leave_req_id}`, {
         method: 'DELETE'
       }).then(() => {
         setLeaveRequests(prev => prev.filter(req => req.leave_req_id !== leave_req_id));
